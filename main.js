@@ -1,8 +1,15 @@
 // Pieces made by gpt-4, put together by human
+function getCurrentPage() {
+  let currentPath = window.location.hash;
+
+  if (currentPath.includes("?custom-path=")) {
+    currentPath = currentPath.split("?custom-path=")[1];
+  }
+
+  return currentPath;
+}
 
 function getReplayName(prompt, message) {
-  console.log("prompt:", prompt);
-  console.log("message:", message);
   return new Promise((resolve, reject) => {
     // Step 1: Create the Assistant Session
     Caido.graphql
@@ -78,13 +85,35 @@ function getSelectedReplayID() {
   return null;
 }
 
+function extractRequestLineHostAndBody(httpRequest) {
+  const lines = httpRequest.split("\n");
+  const firstLine = lines[0];
+  const secondLine = lines[1];
+  const body = lines.join("\n").split("\n\n")[1];
+  return firstLine + "\n" + secondLine + "\n\n" + (body || "");
+}
+
 function getReplayText() {
   var contentEditable = document.querySelector(".cm-content");
   if (contentEditable) {
-    var textContent = contentEditable.textContent;
-    return textContent;
+    var text = contentEditable.innerText;
+    return text;
   } else {
     return null;
+  }
+}
+
+function isGraphQLBody(body) {
+  return body.includes("operationName");
+}
+
+function extractOperationNameFromRawGraphQL(rawGraphQLString) {
+  const regex = /"operationName"\s*:\s*"([^"]+)"/;
+  const match = regex.exec(rawGraphQLString);
+  if (match && match[1]) {
+    return match[1];
+  } else {
+    return "BUG!! No operationName found";
   }
 }
 
@@ -125,10 +154,21 @@ const systemMessage =
   "Given the user's HTTP request, provide a short name for the request one-five words max. Be descriptive and specific.";
 
 EvenBetterAPI.eventManager.on("onContextMenuOpen", (data) => {
+  if (getCurrentPage() !== "#/replay") return;
   addPopupItem("Generate Replay Name", () => {
     const selectedReplayID = getSelectedReplayID();
     const replayText = getReplayText();
-    getReplayName(systemMessage, replayText).then((response) => {
+    const httpRequest = extractRequestLineHostAndBody(replayText);
+    const body = httpRequest.split("\n\n")[1];
+    if (isGraphQLBody(body)) {
+      const operationName = extractOperationNameFromRawGraphQL(body);
+      Caido.graphql.renameReplaySession({
+        id: selectedReplayID,
+        name: `GraphQL: ${operationName}`,
+      });
+      return;
+    }
+    getReplayName(systemMessage, httpRequest).then((response) => {
       const reasoning = response.reasoning;
       Caido.graphql.renameReplaySession({
         id: selectedReplayID,
