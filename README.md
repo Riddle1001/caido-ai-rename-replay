@@ -4,8 +4,12 @@
 
 # Updates
 
-- v1.0 initial release
-- v1.1
-  - Stopped sending headers to AI, lowers cost, gives privacy
-  - GraphQL endpoints will not use AI, instead, will have the operationName be used instead
-  - Fixed bug when right clicking a request outside of replay showed the "Generate Replay Name" item
+-   v1.0 initial release
+-   v1.1
+    -   Stopped sending headers to AI, lowers cost, gives privacy
+    -   GraphQL endpoints will not use AI, instead, will have the operationName be used instead
+    -   Fixed bug when right clicking a request outside of replay showed the "Generate Replay Name" item
+-   v1.2
+    -   Refactoried code
+    -   Updated to work with Caido v0.36.1
+    -   Handles selection of multiple replay tabs
