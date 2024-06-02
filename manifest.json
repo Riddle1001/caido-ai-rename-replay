@@ -1,0 +1,20 @@
+{
+  "id": "ai-rename",
+  "name": "AI Replay Rename",
+  "version": "2.0.0",
+  "description": "Renames replay tabs using AI (consumes Caido AI tokens)",
+  "author": {
+    "name": "Riddle",
+    "email": "",
+    "url": "https://github.com/Riddle1001/caido-ai-rename-replay"
+  },
+  "plugins": [
+    {
+      "kind": "frontend",
+      "id": "ai-rename",
+      "name": "AI Replay Rename",
+      "entrypoint": "frontend/script.js",
+      "style": "frontend/style.css"
+    }
+  ]
+}

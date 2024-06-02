@@ -1,5 +1,7 @@
+import { caidoAPI } from "./caidoapi";
+
 function createAssistantSession(prompt, modelId) {
-    return Caido.graphql.createAssistantSession({
+    return caidoAPI.graphql.createAssistantSession({
         input: {
             systemMessage: prompt,
             modelId: modelId,
@@ -8,7 +10,7 @@ function createAssistantSession(prompt, modelId) {
 }
 
 function sendMessageToAssistant(sessionId, message) {
-    return Caido.graphql.sendAssistantMessage({
+    return caidoAPI.graphql.sendAssistantMessage({
         sessionId: sessionId,
         message: message,
     });
@@ -17,7 +19,7 @@ function sendMessageToAssistant(sessionId, message) {
 function pollForResponse(sessionId) {
     return new Promise((resolve, reject) => {
         const interval = setInterval(() => {
-            Caido.graphql
+            caidoAPI.graphql
                 .assistantSession({ id: sessionId })
                 .then((data) => {
                     if (data.assistantSession.messages.length >= 3) {
@@ -35,7 +37,7 @@ function pollForResponse(sessionId) {
 }
 
 function deleteAssistantSession(sessionId) {
-    return Caido.graphql.deleteAssistantSession({
+    return caidoAPI.graphql.deleteAssistantSession({
         id: sessionId,
     });
 }
