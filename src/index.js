@@ -7,6 +7,8 @@ import {
     isGraphQLBody,
     extractOperationNameFromRawGraphQL,
 } from "./http.js";
+import { EvenBetterAPI } from "@bebiks/evenbetter-api";
+import { caidoAPI, setCaidoAPI } from "./caidoapi.js";
 
 const systemMessage =
     "Given the user's HTTP request, provide a short name for the request one-five words max. Be descriptive and specific.";
@@ -17,7 +19,7 @@ const generateReplayNameForReplayID = async (selectedReplayID) => {
     const body = httpRequest.split("\n\n")[1];
     if (isGraphQLBody(body)) {
         const operationName = extractOperationNameFromRawGraphQL(body);
-        Caido.graphql.renameReplaySession({
+        caidoAPI.graphql.renameReplaySession({
             id: selectedReplayID,
             name: `GraphQL: ${operationName}`,
         });
@@ -26,17 +28,26 @@ const generateReplayNameForReplayID = async (selectedReplayID) => {
     return await generateText(systemMessage, httpRequest);
 };
 
-EvenBetterAPI.eventManager.on("onContextMenuOpen", (data) => {
-    if (getCurrentPage() !== "#/replay") return;
-    addPopupItem("Generate Replay Name", async () => {
-        const selectedReplayIDs = getSelectedTabIds();
+export const init = (caido) => {
+    const evenBetterAPI = new EvenBetterAPI(caido, {
+        manifestID: "ai-rename",
+        name: "AI Replay Rename" 
+    });
 
-        selectedReplayIDs.map(async (selectedReplayID) => {
-            const generatedReplayName = await generateReplayNameForReplayID(selectedReplayID);
-            Caido.graphql.renameReplaySession({
-                id: selectedReplayID,
-                name: generatedReplayName,
+    setCaidoAPI(caido);
+
+    evenBetterAPI.eventManager.on("onContextMenuOpen", (data) => {
+        if (getCurrentPage() !== "#/replay") return;
+        addPopupItem("Generate Replay Name", async () => {
+            const selectedReplayIDs = getSelectedTabIds();
+
+            selectedReplayIDs.map(async (selectedReplayID) => {
+                const generatedReplayName = await generateReplayNameForReplayID(selectedReplayID);
+                caido.graphql.renameReplaySession({
+                    id: selectedReplayID,
+                    name: generatedReplayName,
+                });
             });
         });
     });
-});
+};

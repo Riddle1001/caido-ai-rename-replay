@@ -1,3 +1,5 @@
+import { caidoAPI } from "./caidoapi";
+
 function extractRequestLineHostAndBody(httpRequest) {
     const lines = httpRequest.split("\n");
     const firstLine = lines[0];
@@ -7,11 +9,11 @@ function extractRequestLineHostAndBody(httpRequest) {
 }
 
 async function getReplayRawRequest(id) {
-    const replayDetails = (await Caido.graphql.replaySessionEntries({ id: id.toString() })).replaySession.activeEntry;
+    const replayDetails = (await caidoAPI.graphql.replaySessionEntries({ id: id.toString() })).replaySession.activeEntry;
     console.log(replayDetails);
     if (replayDetails) {
         const reqId = replayDetails.request.id;
-        const foundRequest = (await Caido.graphql.request({ id: reqId })).request;
+        const foundRequest = (await caidoAPI.graphql.request({ id: reqId })).request;
         if (foundRequest) {
             return foundRequest.raw;
         }
