@@ -5,7 +5,7 @@
   "description": "Renames replay tabs using AI (consumes Caido AI tokens)",
   "author": {
     "name": "Riddle",
-    "email": "",
+    "email": ".",
     "url": "https://github.com/Riddle1001/caido-ai-rename-replay"
   },
   "plugins": [
